@@ -1,8 +1,7 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-//const database_url = 'mongodb://localhost:27017/delibaDB''
-const database_url = 'mongodb+srv://delibabot:cachorroamarelo@delibadb.jqsv4.mongodb.net/'
+const database_url = process.env.DB_URL
 
 mongoose.connect(database_url, { useNewUrlParser: true, useUnifiedTopology: true } , err =>{
   if(err){
