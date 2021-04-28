@@ -17,14 +17,8 @@ client.on("ready", async () => {
 
   client.user.setActivity(".ajuda", {type: "STREAMING", url: "https://www.twitch.tv/schstr"});
   check_packages(client);
-  setInterval(() => check_packages(client), 1000 * 60)
+  setInterval(() => check_packages(client), 1000 * 60 * 240) //Ms * Seconds * Minutes
 });
-
-// client.on('message', message =>{
-//   if(message.content === '1'){
-//     check_packages(client)
-//   }
-// });
 
 (async () => {
   connection = await require("../database/db");
