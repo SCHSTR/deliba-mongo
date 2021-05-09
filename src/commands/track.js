@@ -1,6 +1,6 @@
 require("dotenv");
 const { rastrearEncomendas } = require("correios-brasil"); //API para rastreio dos correios
-const Pacote = require('../../models/package') //Schema para o banco de dados
+const pacote = require('../../models/package') //Schema para o banco de dados
 
 module.exports = {
   name: "track", //neded
@@ -10,40 +10,55 @@ module.exports = {
   usage: ".track",
   run: async function (client, command, args, message) {
     
-    var user_id = message.author.id
-    var codigo_do_usuario = message.content.split(' ')[1]
-    var codigo_request;
+    var userId = message.author.id
+    var userCode = message.content.split(' ')[1]
+    var requestCode;
 
-    //Tratativas de validação do código de rastreio
-    if(codigo_do_usuario === undefined) message.reply('parece que você não digitou nenhum código 😢\n Digite `.track SEU_CODIGO` para que eu possa te ajudar!');
-    if(message.content.split(' ')[2] != undefined) message.reply('você só precisa digitar a mensagem assim: `.track SEU_CÓDIGO` 😉');
-    if(codigo_do_usuario.length != 13) message.reply('tem certeza que isso é um código dos Correios? Ele parece estar incorreto 🤯');
-    if(codigo_do_usuario.length === 13) {
+    var apelido = []
 
-      codigo_request = [codigo_do_usuario]
-      await rastrearEncomendas(codigo_request).then(response => correios_response = response)
+    var fullMessage = message.content.split(' ')
+    for (var i = 2; i < fullMessage.length; i++){
+      apelido.push(fullMessage[i])
+    }
 
-      const correios_data = correios_response[0].pop()
-      if(correios_data != undefined){
+    var apelidoToString = apelido.toString();
+    var apelidoProduto = apelidoToString.replace(/,/g, " ");
+
+    console.log(userCode, apelidoProduto)
+
+    if(userCode == null || apelidoProduto == "") {
+      message.reply('parece que você digitou o comando de forma errada, é só digitar por exemplo `.t SEU_CODIGO AirForce 1` 😉')
+    }else if(userCode.length != 13){ 
+      message.reply('esse código não parece ser dos correios, você consegue checar ele pra ver se ta tudo certinho? 😊')
+    }else if(userCode.length === 13){
+      requestCode = [userCode]
+
+      console.log('Código de rastreio em array ' + requestCode)
+      console.log('Apelido para o produto ' + apelidoProduto)
+      console.log('Usuário que executou o código ' + userId)
+
+      await rastrearEncomendas(requestCode).then(response => correios_response = response)
+      const correiosData = correios_response[0].pop()
+
+      if(correiosData != undefined){
+
+      let query = await pacote.findOneAndUpdate(
+          { trackCode: userCode },
+          { $set: {userId: userId, apelido: apelidoProduto, status: correiosData.status, local: correiosData.local, origem: correiosData.origem, destino: correiosData.destino} },
+          {new: true, upsert: true}
+          ).exec()
+
+        console.log(query)
+
+          // userId: String,
+          // telegramId: String,
+          // trackCode: {type: String, unique: true},
+          // apelido: String,
+          // status: String,
+          // local: String,
+          // origem: String,
+          // destino: String
         
-        let pacote = new Pacote({
-          userId: user_id,
-          trackCode: codigo_do_usuario,
-          status: correios_data.status,
-          local: correios_data.local,
-          origem: correios_data.origem,
-          destino: correios_data.destino,
-        }) 
-
-        pacote.save({}, function (err) {
-          if (err){
-            message.reply('parece que este código já está sendo rastreado 🥳')
-          }else{
-            message.reply('seu produto foi cadastrado com sucesso e vai ser rastreado 🙏🏻🥰')
-          }        
-        }) 
-      }else{
-        message.reply('parece que seu código expirou, ou não está mais cadastrado no sistema dos correios 😢')
       }
     }
 

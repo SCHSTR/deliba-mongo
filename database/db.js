@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 
 const database_url = process.env.DB_URL
 
-mongoose.connect(database_url, { useNewUrlParser: true, useUnifiedTopology: true } , err =>{
+mongoose.connect(database_url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false } , err =>{
   if(err){
       console.error('Err!' + err)
   }else{

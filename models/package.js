@@ -6,6 +6,7 @@ const packageSchema = new Schema({
     userId: String,
     telegramId: String,
     trackCode: {type: String, unique: true},
+    apelido: String,
     status: String,
     local: String,
     origem: String,
