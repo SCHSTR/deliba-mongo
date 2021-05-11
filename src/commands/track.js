@@ -46,7 +46,9 @@ module.exports = {
           { trackCode: userCode },
           { $set: {userId: userId, apelido: apelidoProduto, status: correiosData.status, local: correiosData.local, origem: correiosData.origem, destino: correiosData.destino} },
           {new: true, upsert: true}
-          ).exec()
+          ).exec().then(
+            message.reply('sua encomenda foi registrada ou atualizada com sucesso! Agora eu estarei rastreando ela para você! 🙏🏻😎')
+          )
 
         console.log(query)
 
