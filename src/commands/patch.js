@@ -52,21 +52,32 @@ module.exports = {
               let query = await defaultChannel.findOne(
                                   {guildId: Guilds[i]}
                                 )
+
+              console.log(query)
         
               if(query != null){
-                client.channels.cache.get(query.channelId).send('@everyone')
+                try {
+                  client.channels.cache.get(query?.channelId).send('@everyone')
                 .then(
-                  client.channels.cache.get(query.channelId).send(patchNotes)
-                  )
+                  client.channels.cache.get(query?.channelId).send(patchNotes)
+                  )                  
+                } catch (error) {
+                  client.users.fetch(getGuildDetails[i].ownerID, false).then((user) => {
+                    user.send(patchNotes).then(
+                      user.send('você está recebende essa mensagem pois não encontrei nenhum canal padrão ou canal geral em seu servidor, para criar um canal padrão diginte .novo')
+                    );
+                  });          
+                }
               } else if(getGuildDetails[i].systemChannelID != null){
                 client.channels.cache.get(getGuildDetails[i].systemChannelID).send('@everyone')
                 .then(
                   client.channels.cache.get(getGuildDetails[i].systemChannelID).send(patchNotes)
                   )
               } else {
-                console.log(`O dono do servidor é ` + getGuildDetails[i].ownerID)
                 client.users.fetch(getGuildDetails[i].ownerID, false).then((user) => {
-                  user.send('Message Content');
+                  user.send(patchNotes).then(
+                    user.send('você está recebende essa mensagem pois não encontrei nenhum canal padrão ou canal geral em seu servidor, para criar um canal padrão diginte .novo')
+                  );
                 });
               }
             }
